@@ -1,0 +1,6 @@
+server:
+  port: 8443
+  ssl:
+    key-store:
+    key-store-password: youd_like_to_know_right
+    keyAlias: school_security_certificate
