@@ -45,6 +45,9 @@ compileTestKotlin {
 }
 
 dependencies {
+    runtime('com.h2database:h2')
+    runtime('mysql:mysql-connector-java')
+
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     compile('org.springframework.boot:spring-boot-starter-security')
@@ -56,4 +59,7 @@ dependencies {
     runtime('org.springframework.boot:spring-boot-devtools')
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('org.springframework.security:spring-security-test')
+
+    compile('com.querydsl:querydsl-jpa:4.1.4')
+    kapt('com.querydsl:querydsl-apt:4.1.4:jpa')
 }
