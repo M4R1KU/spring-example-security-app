@@ -4,3 +4,17 @@ server:
     key-store:
     key-store-password: youd_like_to_know_right
     keyAlias: school_security_certificate
+
+spring:
+  h2:
+    console:
+      enabled: true
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:~/securityapp
+    username: securityapp
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop

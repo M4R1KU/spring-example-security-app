@@ -1,7 +1,7 @@
 package me.mkweb.gibb.m183.securityapp.domain
 
-import javax.persistence.Id
+import javax.persistence.Entity
 
-data class User(@Id var id: Long,
-                var username: String,
-                var password: String)
+@Entity
+data class User(var username: String = "",
+                var password: String = ""): AbstractEntity()
