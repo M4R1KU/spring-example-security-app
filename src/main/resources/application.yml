@@ -1,10 +1,11 @@
 server:
   port: 8443
   ssl:
-    key-store:
-    key-store-password: youd_like_to_know_right
+    key-store: school_security_application_keystore.jks
+    key-store-password: youd_like_to_know_right #replace with real pw
     keyAlias: school_security_certificate
-
+    key-store-type: JKS
+    key-password: youd_like_to_know_right #replace with real pw
 spring:
   h2:
     console:
