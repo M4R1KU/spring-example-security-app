@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head data-th-replace="base::head">
+</head>
+<body>
+<nav data-th-replace="base::nav"></nav>
+<section class="content">
+    <div data-th-replace="base::site_header(~{::#title}, _)">
+        <h4 id="title">Login</h4>
+    </div>
+    <form data-th-action="@{/login}" method="post">
+        <div class="row">
+            <div class="columns">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username">
+            </div>
+        </div>
+        <div class="row">
+            <div class="columns">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password">
+            </div>
+        </div>
+        <div class="row">
+            <div class="columns">
+                <input type="submit" value="Login"/>
+            </div>
+        </div>
+    </form>
+</section>
+<!--<th-block data-th-include="base::js"></th-block>-->
+</body>
+</html>

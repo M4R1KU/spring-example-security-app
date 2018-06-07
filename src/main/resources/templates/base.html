@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head data-th-fragment="head">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" data-th-href="@{/css/normalize.min.css}"/>
+    <link type="text/css" rel="stylesheet" data-th-href="@{/css/skeleton.min.css}"/>
+    <link type="text/css" rel="stylesheet" data-th-href="@{/css/styles.css}"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+<body>
+<th-block data-th-fragment="nav">
+    <nav>
+        <div class="nav-wrapper">
+            <a href="#" class="title">M183 Security App</a>
+        </div>
+    </nav>
+</th-block>
+<div class="site-header" data-th-fragment="site_header(title, actions)">
+    <h4 data-th-replace="${title}"></h4>
+    <th-block data-th-replace="${actions}"></th-block>
+</div>
+<!--<th-block data-th-fragment="js">
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <script type="text/javascript"
+            data-th-src="@{/js/mailadmin.js}"></script>
+</th-block>-->
+</body>
+</html>
