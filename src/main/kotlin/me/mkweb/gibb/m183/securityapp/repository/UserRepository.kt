@@ -6,4 +6,6 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor
 import org.springframework.stereotype.Repository
 
 @Repository
-interface UserRepository : JpaRepository<User, Long>, QuerydslPredicateExecutor<User>
+interface UserRepository : JpaRepository<User, Long>, QuerydslPredicateExecutor<User> {
+    fun findByUsername(username: String): User?
+}
