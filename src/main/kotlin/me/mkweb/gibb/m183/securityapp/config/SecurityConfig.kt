@@ -19,6 +19,7 @@ class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityCo
                 .headers().frameOptions().sameOrigin()
 
                 .and().formLogin().loginPage("/login")
+                .defaultSuccessUrl("/command")
     }
 
     override fun configure(auth: AuthenticationManagerBuilder?) {

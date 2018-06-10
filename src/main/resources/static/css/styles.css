@@ -33,3 +33,8 @@ section.content > * {
     max-width: 960px;
     width: 100%;
 }
+
+.commandContainer {
+    align-self: stretch;
+    align-items: center;
+}
