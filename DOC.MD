@@ -3,14 +3,17 @@
 
 ## Inhalt
 1. Bausteine
-  1. H2
-  2. Spring
-  3. Thymeleaf
+      1.1. H2
+    1.2. Spring
+    1.3. Thymeleaf
 2. Datenstruktur
 3. Spring Security Konfiguration
-4. Login
-5. SSL
-6. Systemkommando
+4. Passwort-Persistierung
+5. Login
+6. SSL
+7. Systemkommando
+8. Brute-Force Schutz
+9. Log
 
 ## Bausteine
 In den folgenden Unterkapiteln wird der verwendete Technologie Stack erklärt. Die Gesmatarchitektur richtet sich nach MVC, daher besteht die Applikation auch aus drei Bausteinen. 
@@ -49,5 +52,39 @@ Dies alles führt dazu, dass Spring Boot Applikationen um einiges eifnacher zum 
 ## Login
 
 ## SSL
+Spring Boot unterstüzt das Einbinden von SSL Zertifikaten via die Konfigurationsdatei `application.yml`.
+Alle vom Framework erstellten Webservice-Endpoints basieren dann auf mit dem Zertifikat abgsicherten WebSockets.
+
+Beispiel Konfiguration:
+
+```
+server:
+  port: 8443
+  ssl:
+    key-store: school_security_application_keystore.jks
+    key-store-password: youd_like_to_know_right 
+    keyAlias: school_security_certificate
+    key-store-type: JKS
+    key-password: youd_like_to_know_right 
+```
+
+Alternativ könnte über eine Verschlüsselung auf Reverse-Proxy Ebene nachgedacht werden.
 
 ## Systemkommando
+
+Für die Ausführung von Systemkommandos bietet sich im Java Umfeld die Verwendung des ProcessBuilders an. 
+Die Verwendung dieses Builders bietet zwei wesentliche Vorteile:
+1. Die Plattformunabhängigkeit bleibt bestehen. Solange das übergebene Kommando im aktuellen Systemkontext ausführbar ist, sind keine weiteren Massnahmen nötig.
+2. Trennung von Kommando und Argumenten
+Die ProcessBuilder-Bibliothek trennt beim erstellen eines Prozesses automatisch zwischen den dem Kommando und den dazugehörigen Argumenten.
+Dadurch wird sichergestellt, dass via die Parametereingabe kein Übergriff in die Kontrollebene geschehen kann.
+
+Um das System zusätzlich abzusichern, werden alle Parameter durch eine Escaping-Libraray in "ungefährlichen" Text übersetzt bevor diese an den oben beschriebenen ProcessBuilder übergeben werden.
+
+## Brute-Force Schutz
+
+4  ## Log
+
+
+
+
