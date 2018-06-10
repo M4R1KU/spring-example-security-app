@@ -51,6 +51,8 @@ Dies alles führt dazu, dass Spring Boot Applikationen um einiges eifnacher zum 
 
 ## Login
 
+### Passwort-Persistierung
+
 ## SSL
 Spring Boot unterstüzt das Einbinden von SSL Zertifikaten via die Konfigurationsdatei `application.yml`.
 Alle vom Framework erstellten Webservice-Endpoints basieren dann auf mit dem Zertifikat abgsicherten WebSockets.
@@ -83,7 +85,7 @@ Um das System zusätzlich abzusichern, werden alle Parameter durch eine Escaping
 
 ## Brute-Force Schutz
 
-4  ## Log
+## Log
 
 
 
