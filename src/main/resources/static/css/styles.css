@@ -40,3 +40,8 @@ section.content > * {
 .filler {
     flex-grow: 1;
 }
+
+.commandContainer {
+    align-self: stretch;
+    align-items: center;
+}
