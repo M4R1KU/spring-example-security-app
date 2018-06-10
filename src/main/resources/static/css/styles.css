@@ -21,6 +21,9 @@ nav .nav-wrapper {
     flex-grow: 1;
 
     border-bottom: 1px solid lightgray;
+
+    display: flex;
+    align-items: center;
 }
 
 section.content {
@@ -32,4 +35,8 @@ section.content {
 section.content > * {
     max-width: 960px;
     width: 100%;
+}
+
+.filler {
+    flex-grow: 1;
 }
