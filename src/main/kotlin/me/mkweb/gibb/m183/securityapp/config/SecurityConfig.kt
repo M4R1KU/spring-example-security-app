@@ -2,7 +2,9 @@ package me.mkweb.gibb.m183.securityapp.config
 
 import me.mkweb.gibb.m183.securityapp.web.filter.RateLimitingFilter
 import me.mkweb.gibb.m183.securityapp.web.filter.exception.RateLimitExceededException
+import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -19,12 +21,11 @@ class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityCo
 
     override fun configure(web: WebSecurity?) {
         web!!.debug(true)
+        web.ignoring().antMatchers("/css/**")
     }
 
     override fun configure(http: HttpSecurity?) {
-        http!!.antMatcher("/do-login")
-                .addFilterAfter(RateLimitingFilter(), BasicAuthenticationFilter::class.java)
-                .authorizeRequests()
+        http!!.authorizeRequests()
                 .antMatchers("/h2-console/**", "/css/**", "/login").permitAll()
                 .anyRequest().authenticated()
                 .and().csrf().disable()
@@ -42,6 +43,19 @@ class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityCo
         auth!!.userDetailsService(userDetailsService)
     }
 
-    @Bean
-    fun passwordEncoder() = BCryptPasswordEncoder()
+    companion object {
+        @JvmStatic
+        @Bean
+        fun passwordEncoder() = BCryptPasswordEncoder()
+
+        @JvmStatic
+        @Bean
+        fun rateLimitingFilter(): FilterRegistrationBean<RateLimitingFilter> {
+            val registrationBean = FilterRegistrationBean<RateLimitingFilter>(RateLimitingFilter())
+            registrationBean.addUrlPatterns("/do-login/*")
+            registrationBean.order = 5
+            return registrationBean
+        }
+
+    }
 }
