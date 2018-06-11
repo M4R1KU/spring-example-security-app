@@ -16,7 +16,13 @@
         <div class="nav-wrapper">
             <a href="#" class="title">M183 Security App</a>
             <span class="filler"></span>
-            <a data-th-href="@{/logout}" class="button u-pull-right" data-th-if="${currentUser != null}">Logout</a>
+            <form data-th-action="@{/logout}" method="post">
+                <input type="hidden" data-th-attr="name=${_csrf.parameterName},value=${_csrf.token}"/>
+
+                <button type="submit" class="button-primary"
+                        data-th-if="${isLoggedIn}">Logout
+                </button>
+            </form>
         </div>
     </nav>
 </th-block>
@@ -24,13 +30,5 @@
     <h4 data-th-replace="${title}"></h4>
     <th-block data-th-replace="${actions}"></th-block>
 </div>
-<!--<th-block data-th-fragment="js">
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
-    <script type="text/javascript"
-            data-th-src="@{/js/mailadmin.js}"></script>
-</th-block>-->
 </body>
 </html>

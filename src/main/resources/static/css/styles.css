@@ -26,6 +26,10 @@ nav .nav-wrapper {
     align-items: center;
 }
 
+.nav-wrapper form {
+    margin: 0;
+}
+
 section.content {
     display: flex;
     flex-direction: column;
@@ -41,7 +45,7 @@ section.content > * {
     flex-grow: 1;
 }
 
-.commandContainer {
+.command-container {
     align-self: stretch;
     align-items: center;
 }

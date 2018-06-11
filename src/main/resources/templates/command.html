@@ -10,7 +10,7 @@
     </div>
     <form data-th-action="@{/command/execute}" method="get">
         <div class="row">
-            <div class="commandContainer four columns">
+            <div class="command-container four columns">
                 <h5>ipconfig</h5>
             </div>
             <div class="six columns">
@@ -29,6 +29,5 @@
         <p th:text="${result}" th:if="${result}">Test</p>
     </div>
 </section>
-<!--<th-block data-th-include="base::js"></th-block>-->
 </body>
 </html>

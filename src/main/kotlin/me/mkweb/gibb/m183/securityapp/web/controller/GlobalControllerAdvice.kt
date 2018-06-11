@@ -14,4 +14,9 @@ class GlobalControllerAdvice {
         }
         return principal
     }
+
+    @ModelAttribute("isLoggedIn")
+    fun isLoggedIn(): Boolean {
+        return currentUser() != null
+    }
 }

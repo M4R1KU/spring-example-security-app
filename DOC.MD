@@ -3,7 +3,7 @@
 
 ## Inhalt
 1. Bausteine
-      1.1. H2
+    1.1. H2
     1.2. Spring
     1.3. Thymeleaf
 2. Datenstruktur
@@ -26,7 +26,7 @@ H2 besitzt aufgrund der Schlankheit einige Features von anderen Datenbankmanagem
 Dies hat aber keinen Einfluss auf das vorliegende Projekt, da auf diese Funktionalitäten verzichtet werden kann.
 
 H2 kann wie schon erwähnt direkt in die Applikation eingebunden werden, dies passiert über die Gradle Konfiguration.
-```
+```groovy
 runtime('com.h2database:h2')
 ```
 Im Normalmodus entspricht H2 dann einer In-Memory Datenbank, was heisst, dass die Daten nach dem Neustart der Applikation verloren gehen.
@@ -49,6 +49,89 @@ Dies alles führt dazu, dass Spring Boot Applikationen um einiges eifnacher zum 
 
 ## Spring Security Konfiguration
 
+Für die Umsetzung der Sicherheits-Anforderungen wird Spring Security verwendet. Spring Security unterstützt out-of-the-box schon sehr viele Sicherheitsmechanismen, wie auch zum Beispiel das erforderliche "salten" von Passwörtern. Auch das Session-Management wird von Haus aus unterstützt und passiert automatisch.
+
+Die Konfigurationseinstellungen werden in den folgenden Unterkapiteln erklärt.
+
+Untenstehend ist die komplette `SecurityConfig` Klasse zu sehen. Dies ist der Ort wo der grösste Teil der Konfiguration vorgenommen wird.
+
+```kotlin
+@EnableWebSecurity
+class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityConfigurerAdapter() {
+    @Bean
+    fun passwordEncoder() = BCryptPasswordEncoder()
+
+    @Bean
+    fun rateLimitingFilter(): FilterRegistrationBean<RateLimitingFilter> {
+        val registrationBean = FilterRegistrationBean<RateLimitingFilter>(RateLimitingFilter())
+        registrationBean.addUrlPatterns("/do-login/*")
+        registrationBean.order = 5
+        return registrationBean
+
+    }
+
+    override fun configure(web: WebSecurity?) {
+        web!!.ignoring().antMatchers("/css/**")
+    }
+
+    override fun configure(http: HttpSecurity?) {
+        http!!.authorizeRequests()
+                .antMatchers("/css/**").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login").permitAll()
+                .loginProcessingUrl("/do-login")
+                .defaultSuccessUrl("/command")
+    }
+
+    override fun configure(auth: AuthenticationManagerBuilder?) {
+        auth!!.userDetailsService(userDetailsService)
+    }
+}
+```
+
+### Basis
+
+Damit Spring Security überhaupt aktiviert wird, muss die `@EnableWebSecurity` Annotation an einer Klasse angehängt werden. Diese aktiviert wie schon erwähnt den ganzen Spring Security Stack und markiert unter anderem die aktuelle Klasse als Konfigurationsklasse, was uns dann ermöglicht mit `@Bean` eigene Beans für die Dependency Injection zu erstellen.
+
+Nebst dem Anfügen der `@EnableWebSecurity` Annotation erbt die aktuelle Klasse auch noch von der Klasse `WebSecurityConfigurerAdapter`, welche es uns ermöglicht das Standardverhalten vom Security Stack zu konfigurieren.
+Die Einzelheiten dazu werden noch erläutert.
+
+### Beans
+
+Unsere `SecurityConfig` definiert zwei Beans. Zum einen haben wir einen `PasswordEncoder` und eine `FilterRegistrationBean`.
+
+#### PasswordEncoder
+
+Damit die Passwörter beim Speichern gehasht werden und auch richtig verglichen werden (beim Login) definieren den `BCryptPasswordEncoder` als unseren PasswordEncoder. Unteranderem unterstützt dieser Encoder das "salten" von Passwörtern, was aber im Kapitel Passwort-Persistierung noch genauer erklärt wird.
+
+#### FilterRegistrationBean
+
+Die `FilterRegistrationBean`  ist eigentlich nur eine Wrapper-Klasse für einen standardmässigen Filter.
+
+Was ist ein Filter überhaupt? Spring Web enthält eine Implementation des Chain-of-Responsibility-Patterns, welches jede Request, welche zum Server kommt durch eine Reihe von Filtern laufen lässt. Die `FilterRegistrationBean` ist ein Weg um einen Filter zu registrieren. Zudem bietet es uns die Möglichkeit den Filter nur auf bestimmte URL's zu setzen. Wir setzen zudem noch den Standort in der Filter-Chain damit wir sichergehen, dass unser Filter vor der `springSecurityFilterChain` läuft, da diese jenachdem Weiterleitungen durchführt und somit unseren eigenen Filter aus der Chain kickt.
+
+Der Filter, den wir Registrieren, ist der `RateLimitingFilter`, welcher die Anzahl Aufrufe pro Zeit für einen bestimmten Anfrager limitiert.
+
+```kotlin
+override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+    if (request is HttpServletRequest) {
+        var remoteAddr = request.getHeader("X-FORWARDED_FOR")
+        if (remoteAddr == null || remoteAddr.isEmpty()) {
+            remoteAddr = request.remoteAddr
+        }
+        val lastAccess = IP_ACCESS_MAP[remoteAddr]
+        if (lastAccess != null && 
+            !lastAccess.isBefore(LocalDateTime.now().minus(500, ChronoUnit.MILLIS))) {
+            throw RateLimitExceededException("Remote with address $remoteAddr has exceeded its rate limit of 1 request per 500 milliseconds")
+        }
+        IP_ACCESS_MAP[remoteAddr] = LocalDateTime.now()
+    }
+    chain.doFilter(request, response)
+}
+```
+
 ## Login
 
 ### Passwort-Persistierung
@@ -59,15 +142,15 @@ Alle vom Framework erstellten Webservice-Endpoints basieren dann auf mit dem Zer
 
 Beispiel Konfiguration:
 
-```
+```yaml
 server:
   port: 8443
   ssl:
     key-store: school_security_application_keystore.jks
-    key-store-password: youd_like_to_know_right 
+    key-store-password: **store_pw** 
     keyAlias: school_security_certificate
     key-store-type: JKS
-    key-password: youd_like_to_know_right 
+    key-password: **key_pw**
 ```
 
 Alternativ könnte über eine Verschlüsselung auf Reverse-Proxy Ebene nachgedacht werden.

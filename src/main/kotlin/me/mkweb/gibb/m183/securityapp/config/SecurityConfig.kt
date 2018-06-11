@@ -14,44 +14,34 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 @EnableWebSecurity
 class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityConfigurerAdapter() {
+    @Bean
+    fun passwordEncoder() = BCryptPasswordEncoder()
+
+    @Bean
+    fun rateLimitingFilter(): FilterRegistrationBean<RateLimitingFilter> {
+        val registrationBean = FilterRegistrationBean<RateLimitingFilter>(RateLimitingFilter())
+        registrationBean.addUrlPatterns("/do-login/*")
+        registrationBean.order = 5
+        return registrationBean
+
+    }
 
     override fun configure(web: WebSecurity?) {
-        web!!.debug(true)
-        web.ignoring().antMatchers("/css/**")
+        web!!.ignoring().antMatchers("/css/**")
     }
 
     override fun configure(http: HttpSecurity?) {
         http!!.authorizeRequests()
-                .antMatchers("/h2-console/**", "/css/**", "/login").permitAll()
+                .antMatchers("/css/**").permitAll()
                 .anyRequest().authenticated()
-                .and().csrf().disable()
-                .headers().frameOptions().sameOrigin()
-
-                .and().formLogin().loginPage("/login")
+                .and()
+                .formLogin()
+                .loginPage("/login").permitAll()
                 .loginProcessingUrl("/do-login")
                 .defaultSuccessUrl("/command")
-                .and()
-                .logout().permitAll()
-
     }
 
     override fun configure(auth: AuthenticationManagerBuilder?) {
         auth!!.userDetailsService(userDetailsService)
-    }
-
-    companion object {
-        @JvmStatic
-        @Bean
-        fun passwordEncoder() = BCryptPasswordEncoder()
-
-        @JvmStatic
-        @Bean
-        fun rateLimitingFilter(): FilterRegistrationBean<RateLimitingFilter> {
-            val registrationBean = FilterRegistrationBean<RateLimitingFilter>(RateLimitingFilter())
-            registrationBean.addUrlPatterns("/do-login/*")
-            registrationBean.order = 5
-            return registrationBean
-        }
-
     }
 }
