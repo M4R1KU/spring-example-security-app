@@ -1,11 +1,8 @@
 package me.mkweb.gibb.m183.securityapp.config
 
 import me.mkweb.gibb.m183.securityapp.web.filter.RateLimitingFilter
-import me.mkweb.gibb.m183.securityapp.web.filter.exception.RateLimitExceededException
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
@@ -13,7 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
 
 @EnableWebSecurity

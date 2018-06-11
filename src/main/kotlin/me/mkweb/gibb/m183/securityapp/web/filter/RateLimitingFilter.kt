@@ -2,7 +2,6 @@ package me.mkweb.gibb.m183.securityapp.web.filter
 
 import me.mkweb.gibb.m183.securityapp.web.filter.exception.RateLimitExceededException
 import org.springframework.web.filter.GenericFilterBean
-import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -12,7 +11,6 @@ import javax.servlet.ServletException
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 class RateLimitingFilter : GenericFilterBean() {
     companion object {
