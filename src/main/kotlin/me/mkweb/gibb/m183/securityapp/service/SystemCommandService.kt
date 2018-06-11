@@ -21,7 +21,9 @@ class SystemCommandService {
         LOGGER.info("Executing system command: ${processBuilder.command()} with parameters: ${argumentArray.joinToString(" ")}")
         val process = processBuilder.start()
         val errorOutput = process.errorStream.bufferedReader().use { it.readText() }
-        LOGGER.warn(errorOutput)
+        if (errorOutput.isNotBlank()) {
+            LOGGER.warn(errorOutput)
+        }
         return process.inputStream.bufferedReader().use { it.readText() }
     }
 

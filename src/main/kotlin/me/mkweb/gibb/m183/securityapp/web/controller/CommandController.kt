@@ -8,15 +8,15 @@ import org.springframework.web.bind.annotation.*
 
 @Controller
 @RequestMapping("/command")
-class CommandController @Autowired constructor(val systemCommandService: SystemCommandService) {
-    @GetMapping()
+class CommandController(val systemCommandService: SystemCommandService) {
+    @GetMapping
     fun command(model: Model): Any {
         return "command"
     }
 
     @GetMapping("/execute")
     fun executeCommand( model: Model, @RequestParam("sysopt") sysopt: String): Any {
-        model.addAttribute("result", systemCommandService.executeSecuredCommand("date", sysopt))
+        model.addAttribute("result", systemCommandService.executeSecuredCommand("ipconfig", sysopt))
         return "command"
     }
 }

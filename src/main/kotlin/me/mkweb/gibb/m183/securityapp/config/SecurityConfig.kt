@@ -9,27 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
-/**
- *
- * http!!.formLogin()
- *
- *.loginPage("/login").permitAll()
- *.loginProcessingUrl("/do-login")
- *.defaultSuccessUrl("/", true)
- *.failureUrl("/auth_error")
- *.and()
- *.logout()
- *.logoutUrl("/do-logout").permitAll()
- *.logoutSuccessUrl("/")
- *.and()
- *.authorizeRequests()
- *.antMatchers("/css/ **").permitAll()
- *.anyRequest().hasRole("USER")
- *
- * override fun configure(auth: AuthenticationManagerBuilder?) {
- *     auth!!.inMemoryAuthentication().withUser("lb3").password("gibbiX12345").roles("USER")
- * }
- */
+
 @EnableWebSecurity
 class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityConfigurerAdapter() {
 
@@ -41,19 +21,14 @@ class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityCo
                 .headers().frameOptions().sameOrigin()
 
                 .and().formLogin().loginPage("/login")
+                .loginProcessingUrl("/do-login")
                 .defaultSuccessUrl("/command")
+                .and()
+                .logout().permitAll()
     }
 
     override fun configure(auth: AuthenticationManagerBuilder?) {
-        auth!!.authenticationProvider(authenticationProvider())
-    }
-
-    @Bean
-    fun authenticationProvider(): DaoAuthenticationProvider {
-        val authProvider = DaoAuthenticationProvider()
-        authProvider.setUserDetailsService(userDetailsService)
-        authProvider.setPasswordEncoder(passwordEncoder())
-        return authProvider
+        auth!!.userDetailsService(userDetailsService)
     }
 
     @Bean
