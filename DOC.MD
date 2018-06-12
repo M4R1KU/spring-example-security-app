@@ -82,7 +82,7 @@ class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityCo
                 .formLogin()
                 .loginPage("/login").permitAll()
                 .loginProcessingUrl("/do-login")
-                .defaultSuccessUrl("/command")
+                .defaultSuccessUrl("/")
     }
 
     override fun configure(auth: AuthenticationManagerBuilder?) {
@@ -149,8 +149,7 @@ Die `$` Zeichen trennen die drei Haupteile der 4 Passwortbestandteile:
    ```
    1	= 	md5
    2a 	= 	bcrypt
-   5	= 	sha-256
-   
+   5	= 	sha-256   
    ```
 
 2. Der Kostenfaktor der Passwortberechnung (Teil des Brute-Force Schutzes)
@@ -196,6 +195,27 @@ Um das System zusätzlich abzusichern, werden alle Parameter durch eine Escaping
 
 ## Log
 
+Spring verfügt über vordefinierte Logebenen für verschiedene Applikationsteile.
+Im Sourcecode kann mit einfachsten Mitteln in dieses Log geschriben werden.
 
+```kotlin
+        val LOGGER = LoggerFactory.getLogger(SystemCommandService::class.java)
+        LOGGER.info("Executing system command: $command with parameters: ${argumentArray.joinToString(" ")}")
+```
+Dieses Codestück generiert einen Log-Eintrag der wie folgt aussehen könnte:
+`2018-06-12 19:34:44.211  INFO 1632 --- [nio-8443-exec-7] m.m.g.m.s.service.SystemCommandService   : Executing system command: java with parameters: -version
+`
 
+Die folgende Konfiguration schreibt die gewünschten Logs an den entsprechenden Pfad:
+
+```yaml
+logging:
+  file: /var/log/m183-security-app.log
+  level:
+    root: INFO
+    org:
+      springframework:
+        web: INFO
+    hibernate: ERROR
+```
 
