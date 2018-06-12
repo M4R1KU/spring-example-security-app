@@ -6,17 +6,16 @@
     1.1. H2
     1.2. Spring
     1.3. Thymeleaf
-2. Datenstruktur
-3. Spring Security Konfiguration
-4. Passwort-Persistierung
-5. Login und Session Management
-6. SSL
-7. Systemkommando
-8. Brute-Force Schutz
-9. Log
+2. Spring Security Konfiguration
+3. Passwort-Persistierung
+4. Login und Session Management
+5. SSL
+6. Systemkommando
+7. Brute-Force Schutz
+8. Log
 
 ## Bausteine
-In den folgenden Unterkapiteln wird der verwendete Technologie Stack erklärt. Die Gesmatarchitektur richtet sich nach MVC, daher besteht die Applikation auch aus drei Bausteinen. 
+In den folgenden Unterkapiteln wird der verwendete Technologie Stack erklärt. Die Gesamtarchitektur richtet sich nach MVC, daher besteht die Applikation auch aus drei Bausteinen. 
 ### H2
 Als Datenbank wird die H2 Database Engine verwendet.
 
@@ -44,8 +43,6 @@ Die Starter sind immer mit Standardkonfigurationen erstellt, damit eine Spring B
 Dies alles führt dazu, dass Spring Boot Applikationen um einiges eifnacher zum Einrichten sind und man sich auf das wichtige konzentrieren kann. Zudem vermindert man die Konfiguration, indem man nur das nötige bzw. dort wo man vom Standard abweicht konfiguriert.
 
 ### Thymeleaf
-
-## Datenstruktur
 
 ## Spring Security Konfiguration
 
@@ -142,6 +139,12 @@ Versucht ein nicht authentifizierter Benutzer auf eine der "gesicherten" Masken 
 Meldet sich ein User erfolgreich an so wird eine (neue) JSESSIONID erstellt und in einem Cookie gespeichert.
 Das Cookie wird lediglich über HTTPS übertragen um Session Hijacking zu erschweren.
 
+## Registrierung
+
+Damit ein Benutzer einen anderen Benutzer registrieren kann, muss er eingeloggt sein.
+Die Eingaben werden dahingehend validiert, dass der Benutzername eindeutig sein muss, das Passwort gewissen Komplexitätsanforderungen entspricht und die beiden Passwort-Felder übereinstimmen.
+Die Daten werden via HTTPS übertragen und das Passwort wie beschrieben gehashed.
+
 ### Passwort-Persistierung
 
 Die im Kapittel PasswordEncoder beschribene Klasse `BCryptPasswordEncoder`  wird verwendet um aus dem Plaintextpasswort des Users einen sicheren Hash zu generieren.
@@ -168,6 +171,7 @@ Die `$` Zeichen trennen die drei Haupteile der 4 Passwortbestandteile:
    2. Der Rest für den Hash des eigentlichen Passworts
 
    Dabei gilt es zu beachten, dass der Base-64 String auf einem spezeillen Zeichensatz basiert.
+   Der verwendete Hash-Alogrithmus ist bewusst langsam und die Berechnungskosten erhöhen sich wiederholten berechnungen (Blowfish).
 
 ## SSL
 Spring Boot unterstüzt das Einbinden von SSL Zertifikaten via die Konfigurationsdatei `application.yml`.
@@ -200,6 +204,15 @@ Dadurch wird sichergestellt, dass via die Parametereingabe kein Übergriff in di
 Um das System zusätzlich abzusichern, werden alle Parameter durch eine Escaping-Libraray in "ungefährlichen" Text übersetzt bevor diese an den oben beschriebenen ProcessBuilder übergeben werden.
 
 ## Brute-Force Schutz
+
+Als Schutzmassnahme gegen Brute-Force-Angriffe wird unter Anderem ein Filter eingesetzt.
+Der Filter liegt vor der Login-Maske und speichert die IP-Adresse und die Zeit jedes Zugriffs.
+Falls von einer IP zu viele Requests an die Login-Schnittstelle gesendet werden, werden die Request vom Filter zurückgewiesen und die Daten gelangen nie zum Controller.
+Nach jedem erfolgreichen Login werden die Einträge der jeweiligen IP durch einen ``EventHandler`` wieder zurückgesetzt.
+
+Der untenstehende Code zeigt unser Vorgehen:
+
+
 
 ## Log
 
