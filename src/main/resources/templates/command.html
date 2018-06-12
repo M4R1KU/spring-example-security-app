@@ -10,23 +10,17 @@
     </div>
     <form data-th-action="@{/command/execute}" method="get">
         <div class="row">
-            <div class="command-container four columns">
-                <h5 data-th-text="${commandName}"></h5>
-            </div>
-            <div class="six columns">
-                <label for="argument">Arguments</label>
-                <input type="text" name="sysopt" id="argument">
-            </div>
+            <label class="offset-by-three six columns" for="argument">Arguments</label>
         </div>
         <div class="row">
-            <div class="columns">
-                <input type="submit" value="Run"/>
-            </div>
+            <h5 class="three columns" data-th-text="${commandName}"></h5>
+            <input class="six columns" type="text" name="name" id="argument" data-th-value="${arguments}">
+            <button class="three columns button-primary" type="submit">Run</button>
         </div>
     </form>
-    <div>
+    <div data-th-if="${result}">
         <h5>Result:</h5>
-        <p data-th-text="${result}" data-th-if="${result}">Test</p>
+        <p data-th-text="${result}"></p>
     </div>
 </section>
 </body>
