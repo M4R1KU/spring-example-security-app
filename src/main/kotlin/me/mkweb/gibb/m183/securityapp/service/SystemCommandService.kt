@@ -8,7 +8,6 @@ import java.io.File
 @Service
 class SystemCommandService {
     companion object {
-
         val LOGGER = LoggerFactory.getLogger(SystemCommandService::class.java)
 
         fun convertAndValidateParameters(arguments: String): Array<String> {
@@ -24,6 +23,4 @@ class SystemCommandService {
         processBuilder.redirectError(ProcessBuilder.Redirect.to(File("m183-security-app.sys-error.log")))
         return process.inputStream.bufferedReader().use { it.readText() }
     }
-
-
 }

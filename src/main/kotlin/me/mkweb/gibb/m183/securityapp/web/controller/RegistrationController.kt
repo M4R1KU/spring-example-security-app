@@ -14,7 +14,7 @@ class RegistrationController(val userService: UserService) {
         return "register"
     }
 
-    @PostMapping("/do-register")
+    @PostMapping("/register")
     fun doRegister(model: Model,
                    @RequestParam username: String,
                    @RequestParam password: String,
