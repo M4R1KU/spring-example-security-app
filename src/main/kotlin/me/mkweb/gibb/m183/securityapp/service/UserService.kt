@@ -11,11 +11,12 @@ import java.util.regex.Pattern
 class UserService(val userRepository: UserRepository,
                   val passwordEncoder: PasswordEncoder) {
     companion object {
-        private val PASSWORD_REGEX = Pattern.compile("/^(?=.[a-z])(?=.[A-Z])(?=.*\\d)(?=).{10,}$/");
+        private val PASSWORD_REGEX = Pattern.compile("(?=.*\\d)(?=.*[A-Z])(?=.*[a-z]).{10,}");
     }
 
     fun registerUser(username: String, password: String, password2: String): String {
-        if (!PASSWORD_REGEX.matcher(password).matches()) {
+        val matcher = PASSWORD_REGEX.matcher(password)
+        if (!matcher.find()) {
             return "Error: Password must be at least 10 characters long and contain upper and lowercase letters and numbers"
         }
 
