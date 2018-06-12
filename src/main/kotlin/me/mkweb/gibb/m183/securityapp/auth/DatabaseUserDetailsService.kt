@@ -1,7 +1,6 @@
 package me.mkweb.gibb.m183.securityapp.auth
 
 import me.mkweb.gibb.m183.securityapp.repository.UserRepository
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService

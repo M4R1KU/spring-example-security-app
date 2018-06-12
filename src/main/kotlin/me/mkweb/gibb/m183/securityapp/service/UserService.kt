@@ -2,7 +2,6 @@ package me.mkweb.gibb.m183.securityapp.service
 
 import me.mkweb.gibb.m183.securityapp.domain.User
 import me.mkweb.gibb.m183.securityapp.repository.UserRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.regex.Pattern
