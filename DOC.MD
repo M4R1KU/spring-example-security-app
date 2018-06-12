@@ -132,7 +132,15 @@ override fun doFilter(request: ServletRequest, response: ServletResponse, chain:
 }
 ```
 
-## Login
+## Login und Session Management
+
+Das Login wird wie bereits erwähnt durch eine Standard-Spring Funktionalität abgehandelt. 
+Die SecurityConfig erzewingt, dass der Benutzer authentifiziert sein muss um auf um auf die verschiedenen Masken zugreifen kann.
+Lediglich der Zugriff auf die Login-Maske bleibt gestattet.
+Versucht ein nicht authentifizierter Benutzer auf eine der "gesicherten" Masken zuzugreifen, so wird er durch einen Filter an die Loginseite weitergeleitet.
+
+Meldet sich ein User erfolgreich an so wird eine (neue) JSESSIONID erstellt und in einem Cookie gespeichert.
+Das Cookie wird lediglich über HTTPS übertragen um Session Hijacking zu erschweren.
 
 ### Passwort-Persistierung
 
@@ -156,7 +164,7 @@ Die `$` Zeichen trennen die drei Haupteile der 4 Passwortbestandteile:
 
 3. Der Base-64 encoded String aus Salt und Passwort-Hash
 
-   1. Die ersten 22 stehen für das Salt
+   1. Die ersten 22 Zeichen stehen für das Salt
    2. Der Rest für den Hash des eigentlichen Passworts
 
    Dabei gilt es zu beachten, dass der Base-64 String auf einem spezeillen Zeichensatz basiert.
