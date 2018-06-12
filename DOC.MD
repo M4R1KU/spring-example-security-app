@@ -136,6 +136,32 @@ override fun doFilter(request: ServletRequest, response: ServletResponse, chain:
 
 ### Passwort-Persistierung
 
+Die im Kapittel PasswordEncoder beschribene Klasse `BCryptPasswordEncoder`  wird verwendet um aus dem Plaintextpasswort des Users einen sicheren Hash zu generieren.
+
+Der `BCryptPasswordEncoder`  generiert einen Hash, welcher wie folgt aussehen könnte:
+
+`$2a$10$2TjFmQuJ56Qo0hPoLGjLP.sQ1x/tt/Z19o7FilL1toX/RMLPobXAu  `
+
+Die `$` Zeichen trennen die drei Haupteile der 4 Passwortbestandteile:
+
+1. Der Hash-Algorythmus: 
+
+   ```
+   1	= 	md5
+   2a 	= 	bcrypt
+   5	= 	sha-256
+   
+   ```
+
+2. Der Kostenfaktor der Passwortberechnung (Teil des Brute-Force Schutzes)
+
+3. Der Base-64 encoded String aus Salt und Passwort-Hash
+
+   1. Die ersten 22 stehen für das Salt
+   2. Der Rest für den Hash des eigentlichen Passworts
+
+   Dabei gilt es zu beachten, dass der Base-64 String auf einem spezeillen Zeichensatz basiert.
+
 ## SSL
 Spring Boot unterstüzt das Einbinden von SSL Zertifikaten via die Konfigurationsdatei `application.yml`.
 Alle vom Framework erstellten Webservice-Endpoints basieren dann auf mit dem Zertifikat abgsicherten WebSockets.
