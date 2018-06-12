@@ -17,7 +17,7 @@ class CommandController(val systemCommandService: SystemCommandService) {
 
     @GetMapping("/execute")
     fun executeCommand( model: Model, @RequestParam("sysopt") sysopt: String): Any {
-        model.addAttribute("result", systemCommandService.executeSecuredCommand("ipconfig", sysopt))
+        model.addAttribute("result", systemCommandService.executeSecuredCommand("date", sysopt))
         return "command"
-    }
+     }
 }

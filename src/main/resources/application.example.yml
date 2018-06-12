@@ -23,7 +23,7 @@ spring:
 logging:
   file: /var/log/m183-security-app.log
   level:
-    root: WARN
+    root: INFO
     org:
       springframework:
         web: INFO
