@@ -9,7 +9,7 @@
 2. Datenstruktur
 3. Spring Security Konfiguration
 4. Passwort-Persistierung
-5. Login
+5. Login und Session Management
 6. SSL
 7. Systemkommando
 8. Brute-Force Schutz
