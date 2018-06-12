@@ -12,15 +12,12 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 class RateLimitingFilter(val rateLimitHolder: RateLimitHolder) : GenericFilterBean() {
-    companion object {
-        private val LOGGER = LoggerFactory.getLogger(RateLimitingFilter::class.java)
-    }
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         if (request is HttpServletRequest && response is HttpServletResponse) {
-            var remoteAddr = request.requestAddress
-            if (rateLimitHolder.checkLimitExceeded(remoteAddr)) {
+            val remoteAddress = request.requestAddress
+            if (rateLimitHolder.checkLimitExceeded(remoteAddress)) {
                 response.sendRedirect("/login?error")
                 return
             }

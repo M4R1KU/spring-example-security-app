@@ -9,10 +9,11 @@
 2. Spring Security Konfiguration
 3. Passwort-Persistierung
 4. Login und Session Management
-5. SSL
-6. Systemkommando
-7. Brute-Force Schutz
-8. Log
+5. Registrierung
+6. SSL
+7. Systemkommando
+8. Brute-Force Schutz
+9. Log
 
 ## Bausteine
 In den folgenden Unterkapiteln wird der verwendete Technologie Stack erklärt. Die Gesamtarchitektur richtet sich nach MVC, daher besteht die Applikation auch aus drei Bausteinen. 
@@ -143,7 +144,7 @@ Das Cookie wird lediglich über HTTPS übertragen um Session Hijacking zu erschw
 
 Damit ein Benutzer einen anderen Benutzer registrieren kann, muss er eingeloggt sein.
 Die Eingaben werden dahingehend validiert, dass der Benutzername eindeutig sein muss, das Passwort gewissen Komplexitätsanforderungen entspricht und die beiden Passwort-Felder übereinstimmen.
-Die Daten werden via HTTPS übertragen und das Passwort wie beschrieben gehashed.
+Die Daten werden via HTTPS übertragen und das Passwort wie beschriben gehashed.
 
 ### Passwort-Persistierung
 
@@ -201,7 +202,7 @@ Die Verwendung dieses Builders bietet zwei wesentliche Vorteile:
 Die ProcessBuilder-Bibliothek trennt beim erstellen eines Prozesses automatisch zwischen den dem Kommando und den dazugehörigen Argumenten.
 Dadurch wird sichergestellt, dass via die Parametereingabe kein Übergriff in die Kontrollebene geschehen kann.
 
-Um das System zusätzlich abzusichern, werden alle Parameter durch eine Escaping-Libraray in "ungefährlichen" Text übersetzt bevor diese an den oben beschriebenen ProcessBuilder übergeben werden.
+Um das System zusätzlich abzusichern, werden alle Parameter durch eine Escaping-Libraray in "ungefährlichen" Text übersetzt bevor diese an den oben beschribenen ProcessBuilder übergeben werden.
 
 ## Brute-Force Schutz
 
@@ -212,7 +213,51 @@ Nach jedem erfolgreichen Login werden die Einträge der jeweiligen IP durch eine
 
 Der untenstehende Code zeigt unser Vorgehen:
 
+```kotlin
+    fun checkLimitExceeded(ipAddress: String): Boolean {
+        if (ipAddress.isEmpty()) {
+            return false
+        }
+        if (isBlocked(ipAddress)) {
+            LOGGER.warn("Blocked IP $ipAddress attempted an access")
+            return true
+        }
+        val now = LocalDateTime.now()
+        val lastAttempts = IP_ACCESS_MAP[ipAddress]
+        lastAttempts?.removeAll(isInTimeFrame(now))
 
+        val hasExceeded = lastAttempts?.size ?: 0 >= REQUESTS_PER_TIMEFRAME
+        if (hasExceeded) {
+            LOGGER.warn("Block IP $ipAddress for $BLOCKED_HOURS hours")
+            IP_ACCESS_MAP.remove(ipAddress)
+            BLOCKED_IPS[ipAddress] = now
+        } else {
+            IP_ACCESS_MAP.compute(ipAddress, { _, attempts ->
+                val attemptsOrEmpty = attempts ?: mutableListOf()
+                attemptsOrEmpty.add(now)
+                attemptsOrEmpty
+            })
+        }
+        return hasExceeded
+    }
+```
+
+```kotlin
+class RateLimitingFilter(val rateLimitHolder: RateLimitHolder) : GenericFilterBean() {
+
+    @Throws(IOException::class, ServletException::class)
+    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+        if (request is HttpServletRequest && response is HttpServletResponse) {
+            val remoteAddr = request.requestAddress
+            if (rateLimitHolder.checkLimitExceeded(remoteAddr)) {
+                response.sendRedirect("/login?error")
+                return
+            }
+        }
+        chain.doFilter(request, response)
+    }
+}
+```
 
 ## Log
 
