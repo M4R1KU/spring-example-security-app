@@ -27,18 +27,18 @@ class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityCo
     }
 
     override fun configure(web: WebSecurity?) {
-        web!!.ignoring().antMatchers("/css/**")
+        web!!.ignoring().antMatchers("/css/**", "/h2-console/**")
     }
 
     override fun configure(http: HttpSecurity?) {
         http!!.authorizeRequests()
-                .antMatchers("/css/**").permitAll()
+                .antMatchers("/css/**", "/h2-console/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/login").permitAll()
                 .loginProcessingUrl("/do-login")
-                .defaultSuccessUrl("/command")
+                .defaultSuccessUrl("/")
     }
 
     override fun configure(auth: AuthenticationManagerBuilder?) {

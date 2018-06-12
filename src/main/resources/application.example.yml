@@ -20,12 +20,11 @@ spring:
     hibernate:
       ddl-auto: create-drop
 
-
-  logging:
-    file: /var/log/m183-security-app.log
-    level:
-      root: WARN
-      org:
-        springframework:
-          web: INFO
-        hibernate: ERROR
+logging:
+  file: /var/log/m183-security-app.log
+  level:
+    root: WARN
+    org:
+      springframework:
+        web: INFO
+    hibernate: ERROR

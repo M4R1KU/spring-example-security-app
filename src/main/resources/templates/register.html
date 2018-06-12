@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head data-th-replace="base::head">
+</head>
+<body>
+<nav data-th-replace="base::nav"></nav>
+<section class="content">
+    <div data-th-replace="base::site_header(~{::#title}, _)">
+        <h4 id="title">Login</h4>
+    </div>
+    <form data-th-action="@{/do-register}" method="post">
+        <div class="row">
+            <div class="columns">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username">
+            </div>
+        </div>
+        <div class="row">
+            <div class="columns">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password">
+            </div>
+        </div>
+        <div class="row">
+            <div class="columns">
+                <label for="password_repeat">Repeat Password</label>
+                <input type="password" name="password2" id="password_repeat">
+            </div>
+        </div>
+        <div class="row" th:if="${message}">
+            <div class="columns button-primary">
+                <h5>Message:</h5>
+                <p th:text="${message}"></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="columns">
+                <input type="submit" value="Register user"/>
+            </div>
+        </div>
+    </form>
+</section>
+</body>
+</html>
