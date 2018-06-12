@@ -4,12 +4,13 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.servlet.view.RedirectView
 
 @Controller
 @RequestMapping
 class HomeController {
     @GetMapping
-    fun home(model: Model): Any {
-        return "home"
+    fun home(): Any {
+        return RedirectView("command")
     }
 }

@@ -26,7 +26,7 @@ nav .nav-wrapper {
     align-items: center;
 }
 
-.nav-wrapper form {
+.nav-wrapper form, .nav-wrapper a {
     margin: 0;
 }
 
@@ -48,4 +48,8 @@ section.content > * {
 .command-container {
     align-self: stretch;
     align-items: center;
+}
+
+.nav-wrapper > :not(.title):not(.filler) + :not(.title):not(.filler) {
+    margin-left: 8px;
 }

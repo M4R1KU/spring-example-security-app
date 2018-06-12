@@ -42,8 +42,9 @@ class SecurityConfig(val userDetailsService: UserDetailsService,
                 .loginPage("/login").permitAll()
                 .usernameParameter("user").passwordParameter("pass")
                 .loginProcessingUrl("/do-login")
-                .successHandler { request, _, _ ->
+                .successHandler { request, response, _ ->
                     rateLimitHolder.clear(request.requestAddress)
+                    response.sendRedirect("/")
                 }
     }
 

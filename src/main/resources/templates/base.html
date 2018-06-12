@@ -16,19 +16,18 @@
         <div class="nav-wrapper">
             <a href="#" class="title">M183 Security App</a>
             <span class="filler"></span>
-            <form data-th-action="@{/logout}" method="post">
+            <a data-th-href="@{/register}" class="button" data-th-if="${isLoggedIn}">Create User</a>
+            <a data-th-href="@{/command}" class="button" data-th-if="${isLoggedIn}">Systemcommand</a>
+            <form data-th-action="@{/logout}" method="post" data-th-if="${isLoggedIn}">
                 <input type="hidden" data-th-attr="name=${_csrf.parameterName},value=${_csrf.token}"/>
 
-                <button type="submit" class="button-primary"
-                        data-th-if="${isLoggedIn}">Logout
-                </button>
+                <button type="submit" class="button-primary">Logout</button>
             </form>
         </div>
     </nav>
 </th-block>
-<div class="site-header" data-th-fragment="site_header(title, actions)">
+<div class="site-header" data-th-fragment="site_header(title)">
     <h4 data-th-replace="${title}"></h4>
-    <th-block data-th-replace="${actions}"></th-block>
 </div>
 </body>
 </html>
