@@ -5,13 +5,13 @@
 <body>
 <nav data-th-replace="base::nav"></nav>
 <section class="content">
-    <div data-th-replace="base::site_header(~{::#title}, _)">
+    <div data-th-replace="base::site_header(~{::#title})">
         <h3 id="title">Command Execution</h3>
     </div>
     <form data-th-action="@{/command/execute}" method="get">
         <div class="row">
             <div class="command-container four columns">
-                <h5>ipconfig</h5>
+                <h5 data-th-text="${commandName}"></h5>
             </div>
             <div class="six columns">
                 <label for="argument">Arguments</label>
@@ -26,7 +26,7 @@
     </form>
     <div>
         <h5>Result:</h5>
-        <p th:text="${result}" th:if="${result}">Test</p>
+        <p data-th-text="${result}" data-th-if="${result}">Test</p>
     </div>
 </section>
 </body>

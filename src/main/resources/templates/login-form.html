@@ -5,7 +5,7 @@
 <body>
 <nav data-th-replace="base::nav"></nav>
 <section class="content">
-    <div data-th-replace="base::site_header(~{::#title}, _)">
+    <div data-th-replace="base::site_header(~{::#title})">
         <h4 id="title">Login</h4>
     </div>
     <form data-th-action="@{/do-login}" method="post">

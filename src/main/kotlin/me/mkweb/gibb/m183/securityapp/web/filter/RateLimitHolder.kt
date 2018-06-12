@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 class RateLimitHolder {
     companion object {
         const val TIMEFRAME_MINUTES = 5L
-        const val REQUESTS_PER_TIMEFRAME = 2
+        const val REQUESTS_PER_TIMEFRAME = 10
         const val BLOCKED_HOURS = 1L
 
         private val IP_ACCESS_MAP: MutableMap<String, MutableList<LocalDateTime>> = mutableMapOf()

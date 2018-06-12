@@ -5,40 +5,48 @@
 <body>
 <nav data-th-replace="base::nav"></nav>
 <section class="content">
-    <div data-th-replace="base::site_header(~{::#title}, _)">
-        <h4 id="title">Login</h4>
+    <div data-th-replace="base::site_header(~{::#title})">
+        <h4 id="title">Create Users</h4>
     </div>
-    <form data-th-action="@{/register}" method="post">
-        <div class="row">
-            <div class="columns">
-                <label for="username">Username</label>
-                <input type="text" name="username" id="username">
+    <div class="row">
+        <form class="one-half column" data-th-action="@{/register}" method="post">
+            <div class="row">
+                <div class="columns">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" id="username">
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="columns">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password">
+            <div class="row">
+                <div class="columns">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" pattern="^(?=.[a-z])(?=.[A-Z])(?=.*\d)(?=).{10,}$">
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="columns">
-                <label for="password_repeat">Repeat Password</label>
-                <input type="password" name="password2" id="password_repeat">
+            <div class="row">
+                <div class="columns">
+                    <label for="password_repeat">Repeat Password</label>
+                    <input type="password" name="password2" id="password_repeat" pattern="^(?=.[a-z])(?=.[A-Z])(?=.*\d)(?=).{10,}$">
+                </div>
             </div>
-        </div>
-        <div class="row" data-th-if="${message}">
-            <div class="columns button-primary">
-                <h5>Message:</h5>
-                <p data-th-text="${message}"></p>
+            <div class="row" data-th-if="${message}">
+                <div class="columns button-primary">
+                    <h5>Message:</h5>
+                    <p data-th-text="${message}"></p>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="columns">
-                <input type="submit" value="Register user"/>
+            <div class="row">
+                <div class="columns">
+                    <input type="submit" value="Register user"/>
+                </div>
             </div>
+        </form>
+        <div class="one-half column">
+            <h5>Existing Users</h5>
+            <ul>
+                <li data-th-each="user : ${users}" data-th-text="${user.username}"></li>
+            </ul>
         </div>
-    </form>
+    </div>
 </section>
 </body>
 </html>
