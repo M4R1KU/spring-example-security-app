@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service
 @Service
 class SystemCommandService {
     companion object {
-
         val LOGGER = LoggerFactory.getLogger(SystemCommandService::class.java)
 
         fun convertAndValidateParameters(arguments: String): Array<String> {
@@ -26,6 +25,4 @@ class SystemCommandService {
         }
         return process.inputStream.bufferedReader().use { it.readText() }
     }
-
-
 }

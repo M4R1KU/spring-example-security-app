@@ -1,5 +1,7 @@
 package me.mkweb.gibb.m183.securityapp.config
 
+import me.mkweb.gibb.m183.securityapp.util.requestAddress
+import me.mkweb.gibb.m183.securityapp.web.filter.RateLimitHolder
 import me.mkweb.gibb.m183.securityapp.web.filter.RateLimitingFilter
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
@@ -13,13 +15,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 
 @EnableWebSecurity
-class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityConfigurerAdapter() {
+class SecurityConfig(val userDetailsService: UserDetailsService,
+                     val rateLimitHolder: RateLimitHolder) : WebSecurityConfigurerAdapter() {
     @Bean
     fun passwordEncoder() = BCryptPasswordEncoder()
 
     @Bean
-    fun rateLimitingFilter(): FilterRegistrationBean<RateLimitingFilter> {
-        val registrationBean = FilterRegistrationBean<RateLimitingFilter>(RateLimitingFilter())
+    fun rateLimitingFilter(rateLimitHolder: RateLimitHolder): FilterRegistrationBean<RateLimitingFilter> {
+        val registrationBean = FilterRegistrationBean<RateLimitingFilter>(RateLimitingFilter(rateLimitHolder))
         registrationBean.addUrlPatterns("/do-login/*")
         registrationBean.order = 5
         return registrationBean
@@ -37,8 +40,11 @@ class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityCo
                 .and()
                 .formLogin()
                 .loginPage("/login").permitAll()
+                .usernameParameter("user").passwordParameter("pass")
                 .loginProcessingUrl("/do-login")
-                .defaultSuccessUrl("/")
+                .successHandler { request, _, _ ->
+                    rateLimitHolder.clear(request.requestAddress)
+                }
     }
 
     override fun configure(auth: AuthenticationManagerBuilder?) {

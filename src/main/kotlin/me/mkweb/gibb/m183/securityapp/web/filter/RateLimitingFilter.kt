@@ -1,35 +1,29 @@
 package me.mkweb.gibb.m183.securityapp.web.filter
 
-import me.mkweb.gibb.m183.securityapp.web.filter.exception.RateLimitExceededException
+import me.mkweb.gibb.m183.securityapp.util.requestAddress
+import org.slf4j.LoggerFactory
 import org.springframework.web.filter.GenericFilterBean
 import java.io.IOException
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
-import java.util.*
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
-class RateLimitingFilter : GenericFilterBean() {
+class RateLimitingFilter(val rateLimitHolder: RateLimitHolder) : GenericFilterBean() {
     companion object {
-        private val IP_ACCESS_MAP = HashMap<String, LocalDateTime>()
+        private val LOGGER = LoggerFactory.getLogger(RateLimitingFilter::class.java)
     }
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        if (request is HttpServletRequest) {
-            var remoteAddr = request.getHeader("X-FORWARDED_FOR")
-            if (remoteAddr == null || remoteAddr.isEmpty()) {
-                remoteAddr = request.remoteAddr
+        if (request is HttpServletRequest && response is HttpServletResponse) {
+            var remoteAddr = request.requestAddress
+            if (rateLimitHolder.checkLimitExceeded(remoteAddr)) {
+                response.sendRedirect("/login?error")
+                return
             }
-            val lastAccess = IP_ACCESS_MAP[remoteAddr]
-            if (lastAccess != null && !lastAccess.isBefore(LocalDateTime.now().minus(500, ChronoUnit.MILLIS))) {
-                throw RateLimitExceededException("Remote with address $remoteAddr has exceeded its rate limit of 1 request per 500 milliseconds")
-            }
-            IP_ACCESS_MAP[remoteAddr] = LocalDateTime.now()
-
         }
         chain.doFilter(request, response)
     }

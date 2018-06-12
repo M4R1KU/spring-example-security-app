@@ -8,7 +8,7 @@
     <div data-th-replace="base::site_header(~{::#title}, _)">
         <h4 id="title">Login</h4>
     </div>
-    <form data-th-action="@{/do-register}" method="post">
+    <form data-th-action="@{/register}" method="post">
         <div class="row">
             <div class="columns">
                 <label for="username">Username</label>
@@ -27,10 +27,10 @@
                 <input type="password" name="password2" id="password_repeat">
             </div>
         </div>
-        <div class="row" th:if="${message}">
+        <div class="row" data-th-if="${message}">
             <div class="columns button-primary">
                 <h5>Message:</h5>
-                <p th:text="${message}"></p>
+                <p data-th-text="${message}"></p>
             </div>
         </div>
         <div class="row">

@@ -7,8 +7,8 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
-class UserService @Autowired constructor(val userRepository: UserRepository,
-                                         val passwordEncoder: PasswordEncoder) {
+class UserService(val userRepository: UserRepository,
+                  val passwordEncoder: PasswordEncoder) {
     fun registerUser(username: String, password: String, password2: String): String {
         if (!(password == password2 && userRepository.findByUsername(username) == null)) {
             return "Error: Username already exists or the passwords do not match"
