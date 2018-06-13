@@ -35,7 +35,6 @@ class SecurityConfig(val userDetailsService: UserDetailsService,
 
     override fun configure(http: HttpSecurity?) {
         http!!.authorizeRequests()
-                .antMatchers("/css/**", "/h2-console/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()

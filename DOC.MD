@@ -2,18 +2,8 @@
 ## Florian Bürgi & Mario Kunz
 
 ## Inhalt
-1. Bausteine
-    1.1. H2
-    1.2. Spring
-    1.3. Thymeleaf
-2. Spring Security Konfiguration
-3. Passwort-Persistierung
-4. Login und Session Management
-5. Registrierung
-6. SSL
-7. Systemkommando
-8. Brute-Force Schutz
-9. Log
+
+[TOC]
 
 ## Bausteine
 In den folgenden Unterkapiteln wird der verwendete Technologie Stack erklärt. Die Gesamtarchitektur richtet sich nach MVC, daher besteht die Applikation auch aus drei Bausteinen. 
@@ -45,6 +35,10 @@ Dies alles führt dazu, dass Spring Boot Applikationen um einiges eifnacher zum 
 
 ### Thymeleaf
 
+Das Frontend für unsere Applikation wird mit der Thymeleaf Templating Engine erstellt. Thymeleaf ist eine moderne Templating Engine für Java und quasi ein Nachfolger von JSP oder JSF.
+
+Thymeleaf integriert sich sehr gut in Spring und es bietet zudem auch schon einige Sicherheitsmechanismen. So wird zum Beispiel jeder Text standardmässig bei der Anzeige escaped. So kann XSS verhindert werden.
+
 ## Spring Security Konfiguration
 
 Für die Umsetzung der Sicherheits-Anforderungen wird Spring Security verwendet. Spring Security unterstützt out-of-the-box schon sehr viele Sicherheitsmechanismen, wie auch zum Beispiel das erforderliche "salten" von Passwörtern. Auch das Session-Management wird von Haus aus unterstützt und passiert automatisch.
@@ -55,13 +49,14 @@ Untenstehend ist die komplette `SecurityConfig` Klasse zu sehen. Dies ist der Or
 
 ```kotlin
 @EnableWebSecurity
-class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityConfigurerAdapter() {
+class SecurityConfig(val userDetailsService: UserDetailsService,
+                     val rateLimitHolder: RateLimitHolder) : WebSecurityConfigurerAdapter() {
     @Bean
     fun passwordEncoder() = BCryptPasswordEncoder()
 
     @Bean
-    fun rateLimitingFilter(): FilterRegistrationBean<RateLimitingFilter> {
-        val registrationBean = FilterRegistrationBean<RateLimitingFilter>(RateLimitingFilter())
+    fun rateLimitingFilter(rateLimitHolder: RateLimitHolder): FilterRegistrationBean<RateLimitingFilter> {
+        val registrationBean = FilterRegistrationBean<RateLimitingFilter>(RateLimitingFilter(rateLimitHolder))
         registrationBean.addUrlPatterns("/do-login/*")
         registrationBean.order = 5
         return registrationBean
@@ -69,18 +64,21 @@ class SecurityConfig(val userDetailsService: UserDetailsService) : WebSecurityCo
     }
 
     override fun configure(web: WebSecurity?) {
-        web!!.ignoring().antMatchers("/css/**")
+        web!!.ignoring().antMatchers("/css/**", "/h2-console/**")
     }
 
     override fun configure(http: HttpSecurity?) {
         http!!.authorizeRequests()
-                .antMatchers("/css/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/login").permitAll()
+                .usernameParameter("user").passwordParameter("pass")
                 .loginProcessingUrl("/do-login")
-                .defaultSuccessUrl("/")
+                .successHandler { request, response, _ ->
+                    rateLimitHolder.clear(request.requestAddress)
+                    response.sendRedirect("/")
+                }
     }
 
     override fun configure(auth: AuthenticationManagerBuilder?) {
@@ -102,38 +100,58 @@ Unsere `SecurityConfig` definiert zwei Beans. Zum einen haben wir einen `Passwor
 
 #### PasswordEncoder
 
-Damit die Passwörter beim Speichern gehasht werden und auch richtig verglichen werden (beim Login) definieren den `BCryptPasswordEncoder` als unseren PasswordEncoder. Unteranderem unterstützt dieser Encoder das "salten" von Passwörtern, was aber im Kapitel Passwort-Persistierung noch genauer erklärt wird.
+Damit die Passwörter beim Speichern gehasht werden und auch richtig verglichen werden (beim Login) definieren wir den `BCryptPasswordEncoder` als unseren PasswordEncoder. Unteranderem unterstützt dieser Encoder das "salten" von Passwörtern, was aber im Kapitel Passwort-Persistierung noch genauer erklärt wird.
 
 #### FilterRegistrationBean
 
 Die `FilterRegistrationBean`  ist eigentlich nur eine Wrapper-Klasse für einen standardmässigen Filter.
 
-Was ist ein Filter überhaupt? Spring Web enthält eine Implementation des Chain-of-Responsibility-Patterns, welches jede Request, welche zum Server kommt durch eine Reihe von Filtern laufen lässt. Die `FilterRegistrationBean` ist ein Weg um einen Filter zu registrieren. Zudem bietet es uns die Möglichkeit den Filter nur auf bestimmte URL's zu setzen. Wir setzen zudem noch den Standort in der Filter-Chain damit wir sichergehen, dass unser Filter vor der `springSecurityFilterChain` läuft, da diese jenachdem Weiterleitungen durchführt und somit unseren eigenen Filter aus der Chain kickt.
+Was ist ein Filter überhaupt? Spring Web enthält eine Implementation des Chain-of-Responsibility-Patterns, welche jede Request, welche zum Server kommt durch eine Reihe von Filtern laufen lässt. Die `FilterRegistrationBean` ist ein Weg um einen Filter zu registrieren. Zudem bietet es uns die Möglichkeit den Filter nur auf bestimmte URL's zu setzen. Wir setzen zudem noch den Standort in der Filter-Chain damit wir sichergehen, dass unser Filter vor der `springSecurityFilterChain` läuft, da diese jenachdem Weiterleitungen durchführt und somit unseren eigenen Filter aus der Chain kickt.
 
-Der Filter, den wir Registrieren, ist der `RateLimitingFilter`, welcher die Anzahl Aufrufe pro Zeit für einen bestimmten Anfrager limitiert.
+Den Filter, den wir Registrieren, ist der `RateLimitingFilter`, welcher die Anzahl Aufrufe pro Zeit für einen bestimmten Anfrager limitiert. Die Funktionsweise des Filters wird in einem späteren Kapitel erklärt.
+
+### WebSecurity
+
+In der Funktion `configure(web: WebSecurity?)` sagen wir Spring Security auf welchen URL's es keine Sicherheitsmechanismen aktivieren muss. Dies ist bei uns die URL wo wir die CSS-Dateien für die Darstellung holen und zudem noch die Adresse der H2-Konsole, über die wir einen Einblick in die Datenbank erhalten können. Dieser Endpoint hat ein eigenes Login und wird für die Produktion noch deaktiviert.
+
+### HttpSecurity
+
+In der Funktion `configure(http: HttpSecurity?)` passiert eigentlich das Spannende. Hier wird nämlich das Verhalten von Spring Security im Bezug auf Authentifizierung konfiguriert.
+
+Mit `anyRequest().authenticated()` geben wir an, dass wir keine Public URL's haben und dass wir für alle URL's eine Authentifizierung erfordern.
+
+Mit `formLogin()` aktivieren die Art des Logins und zwar ist es ein Login über ein Formular. Man könnte hier ein Standardformular von Spring generieren lassen, jedoch ist dieses in keiner Form mit CSS gestylt und daher erstellten wir unser eigenes im Pfad `/login` (`loginPage("/login")`). Damit die Login-Maske auch zugänglich für User ohne Authentifizierung ist geben, wir es hier noch explizit mit `permitAll()` an.
+
+Da die Anforderungen es erfordern, dass die Anmeldung über die zwei Parameter "user" und "pass" gehen, weichen wir von den Standards "username" und "password" ab und müssen diese auf der nächsten Zeile noch explizit angeben.
+
+Als finaler Schritt geben wir eine URL an wo das Login auf der Serverseite verarbeitet werden soll. Dies erstellt einen neuen POST Endpoint, welcher die beiden oben angegebenen Parameter verarbeitet. Die Verarbeitungs-URL muss hier von der Anzeige URL abweichen, damit wir den `RateLimitingFilter` nur auf die Verarbeitung setzen können. Aus diesem Grund passiert die Verarbeitung auf `/do-login`.
+
+Als letztes erstellen wir noch einen `SuccessHandler`, welcher nach jedem erfolgreichen Login läuft. Darin räumen wir den RateLimitingFilter auf. Mehr dazu im nächsten Kapitel.
+Damit wir dann auf der Startseite für die eingeloggten User landen müssen wir noch ein Redirect durchführen.
+
+### UserDetailsService
+
+In der letzten Methode der Klasse `configure(auth: AuthenticationManagerBuilder?)` geben wir Spring an von wo es unsere User bekommt. Dafür haben wir eine Implementation des `UserDetailsService`, welcher wir hier registrieren.
+
+Das `UserDetailsService` Interface enthält eine abstrakte Methode namens `loadUserByUsername`, welche einen Username als Parameter nimmt und ein UserDetails Objekt zurückgibt.
+
+Da unsere User in der Datenbank gespeichert werden, greifen wir über das UserRepository auf diese zu und erstellen aus der Entity ein User Objekt. Die Klasse User ist eine einfache, von Spring mitgebrachte, Implementation des UserDetails Interface und enthält einen Benutzernamen, ein Passwort und eine Liste von Authorities bzw. Rollen. Da wir keine Rollen verwenden, geben wir nur eine leere Liste an.
 
 ```kotlin
-override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-    if (request is HttpServletRequest) {
-        var remoteAddr = request.getHeader("X-FORWARDED_FOR")
-        if (remoteAddr == null || remoteAddr.isEmpty()) {
-            remoteAddr = request.remoteAddr
-        }
-        val lastAccess = IP_ACCESS_MAP[remoteAddr]
-        if (lastAccess != null && 
-            !lastAccess.isBefore(LocalDateTime.now().minus(500, ChronoUnit.MILLIS))) {
-            throw RateLimitExceededException("Remote with address $remoteAddr has exceeded its rate limit of 1 request per 500 milliseconds")
-        }
-        IP_ACCESS_MAP[remoteAddr] = LocalDateTime.now()
+@Component
+class DatabaseUserDetailsService(val userRepository: UserRepository) : UserDetailsService {
+    override fun loadUserByUsername(username: String?): UserDetails {
+        val user = userRepository.findByUsername(username!!) ?: 
+        	throw UsernameNotFoundException(username)
+        return User(user.username, user.password, listOf())
     }
-    chain.doFilter(request, response)
 }
 ```
 
 ## Login und Session Management
 
 Das Login wird wie bereits erwähnt durch eine Standard-Spring Funktionalität abgehandelt. 
-Die SecurityConfig erzewingt, dass der Benutzer authentifiziert sein muss um auf um auf die verschiedenen Masken zugreifen kann.
+Die SecurityConfig erzwingt, dass der Benutzer authentifiziert sein muss um auf um auf die verschiedenen Masken zugreifen kann.
 Lediglich der Zugriff auf die Login-Maske bleibt gestattet.
 Versucht ein nicht authentifizierter Benutzer auf eine der "gesicherten" Masken zuzugreifen, so wird er durch einen Filter an die Loginseite weitergeleitet.
 
@@ -148,7 +166,7 @@ Die Daten werden via HTTPS übertragen und das Passwort wie beschriben gehashed.
 
 ### Passwort-Persistierung
 
-Die im Kapittel PasswordEncoder beschribene Klasse `BCryptPasswordEncoder`  wird verwendet um aus dem Plaintextpasswort des Users einen sicheren Hash zu generieren.
+Die im Kapitel PasswordEncoder beschriebene Klasse `BCryptPasswordEncoder`  wird verwendet um aus dem Plaintextpasswort des Users einen sicheren Hash zu generieren.
 
 Der `BCryptPasswordEncoder`  generiert einen Hash, welcher wie folgt aussehen könnte:
 
@@ -156,7 +174,7 @@ Der `BCryptPasswordEncoder`  generiert einen Hash, welcher wie folgt aussehen k�
 
 Die `$` Zeichen trennen die drei Haupteile der 4 Passwortbestandteile:
 
-1. Der Hash-Algorythmus: 
+1. Der Hash-Algorithmus: 
 
    ```
    1	= 	md5
@@ -166,17 +184,17 @@ Die `$` Zeichen trennen die drei Haupteile der 4 Passwortbestandteile:
 
 2. Der Kostenfaktor der Passwortberechnung (Teil des Brute-Force Schutzes)
 
-3. Der Base-64 encoded String aus Salt und Passwort-Hash
+3. Der Base64 encoded String aus Salt und Passwort-Hash
 
    1. Die ersten 22 Zeichen stehen für das Salt
    2. Der Rest für den Hash des eigentlichen Passworts
 
-   Dabei gilt es zu beachten, dass der Base-64 String auf einem spezeillen Zeichensatz basiert.
-   Der verwendete Hash-Alogrithmus ist bewusst langsam und die Berechnungskosten erhöhen sich wiederholten berechnungen (Blowfish).
+   Dabei gilt es zu beachten, dass der Base-64 String auf einem speziellen Zeichensatz basiert.
+   Der verwendete Hash-Alogrithmus ist bewusst langsam und die Berechnungskosten erhöhen sich nach wiederholten Berechnungen (Blowfish).
 
 ## SSL
 Spring Boot unterstüzt das Einbinden von SSL Zertifikaten via die Konfigurationsdatei `application.yml`.
-Alle vom Framework erstellten Webservice-Endpoints basieren dann auf mit dem Zertifikat abgsicherten WebSockets.
+Alle vom Framework erstellten Webservice-Endpoints basieren dann auf mit dem Zertifikat abgsicherten WebSocket.
 
 Beispiel Konfiguration:
 
@@ -202,18 +220,50 @@ Die Verwendung dieses Builders bietet zwei wesentliche Vorteile:
 Die ProcessBuilder-Bibliothek trennt beim erstellen eines Prozesses automatisch zwischen den dem Kommando und den dazugehörigen Argumenten.
 Dadurch wird sichergestellt, dass via die Parametereingabe kein Übergriff in die Kontrollebene geschehen kann.
 
-Um das System zusätzlich abzusichern, werden alle Parameter durch eine Escaping-Libraray in "ungefährlichen" Text übersetzt bevor diese an den oben beschribenen ProcessBuilder übergeben werden.
+Um das System zusätzlich abzusichern, werden alle Parameter durch eine Escaping-Library in "ungefährlichen" Text übersetzt bevor diese an den oben beschriebenen ProcessBuilder übergeben werden.
 
 ## Brute-Force Schutz
 
-Als Schutzmassnahme gegen Brute-Force-Angriffe wird unter Anderem ein Filter eingesetzt.
+Als Schutzmassnahme gegen Brute-Force-Angriffe wird ein selbstgebauter Filter eingesetzt.
 Der Filter liegt vor der Login-Maske und speichert die IP-Adresse und die Zeit jedes Zugriffs.
-Falls von einer IP zu viele Requests an die Login-Schnittstelle gesendet werden, werden die Request vom Filter zurückgewiesen und die Daten gelangen nie zum Controller.
-Nach jedem erfolgreichen Login werden die Einträge der jeweiligen IP durch einen ``EventHandler`` wieder zurückgesetzt.
+Falls von einer IP während einer gewissen Zeit zu viele Requests an die Login-Schnittstelle gesendet werden, wird diese IP auf eine Blockingliste gesetzt und von da an für eine gewisse Zeit alle Requests von dieser IP Adresse ignoriert.
+Nach jedem erfolgreichen Login werden die Einträge der jeweiligen IP durch den SuccessHandler, welcher in der SecurityConfig eingerichtet wurde gelöscht, da wir ab diesem Zeitpunkt dieser IP vertrauen.
+
+Die Funktionsweise des Filters ist eher rudimentär und auch nicht wirklich produktionsbereit, da es relativ einfach ist eine IP zu fälschen, jedoch zeigt er die Grundfunktion des Blocken relativ gut und dient zu Demozwecke genügend.
+
+Wichtige Schritte im Durchlaufen des Filters werden geloggt. So zum Beispiel, wenn eine IP geblockt wird.
 
 Der untenstehende Code zeigt unser Vorgehen:
+```kotlin
+class RateLimitingFilter(val rateLimitHandler: RateLimitHolder) : GenericFilterBean() {
+    @Throws(IOException::class, ServletException::class)
+    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+        if (request is HttpServletRequest && response is HttpServletResponse) {
+            val remoteAddr = request.requestAddress
+            if (rateLimitHandler.checkLimitExceeded(remoteAddr)) {
+                response.sendRedirect("/login?error")
+                return
+            }
+        }
+        chain.doFilter(request, response)
+    }
+}
+```
 
 ```kotlin
+@Component
+class RateLimitHandler {
+    companion object {
+        const val TIMEFRAME_MINUTES = 5L
+        const val REQUESTS_PER_TIMEFRAME = 10
+        const val BLOCKED_HOURS = 1L
+
+        private val IP_ACCESS_MAP: MutableMap<String, MutableList<LocalDateTime>> = mutableMapOf()
+        private val BLOCKED_IPS: MutableMap<String, LocalDateTime> = mutableMapOf()
+
+        private val LOGGER = LoggerFactory.getLogger(RateLimitHandler::class.java)
+    }
+
     fun checkLimitExceeded(ipAddress: String): Boolean {
         if (ipAddress.isEmpty()) {
             return false
@@ -232,31 +282,45 @@ Der untenstehende Code zeigt unser Vorgehen:
             IP_ACCESS_MAP.remove(ipAddress)
             BLOCKED_IPS[ipAddress] = now
         } else {
-            IP_ACCESS_MAP.compute(ipAddress, { _, attempts ->
+            IP_ACCESS_MAP.compute(ipAddress) { _, attempts ->
                 val attemptsOrEmpty = attempts ?: mutableListOf()
                 attemptsOrEmpty.add(now)
                 attemptsOrEmpty
-            })
+            }
         }
         return hasExceeded
     }
-```
 
-```kotlin
-class RateLimitingFilter(val rateLimitHandler: RateLimitHolder) : GenericFilterBean() {
+    fun clear(ipAddress: String) {
+        LOGGER.info("Removing IP $ipAddress from access map")
+        IP_ACCESS_MAP.remove(ipAddress)
+    }
 
-    @Throws(IOException::class, ServletException::class)
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        if (request is HttpServletRequest && response is HttpServletResponse) {
-            val remoteAddr = request.requestAddress
-            if (rateLimitHandler.checkLimitExceeded(remoteAddr)) {
-                response.sendRedirect("/login?error")
-                return
-            }
+    private fun isInTimeFrame(now: LocalDateTime): (time: LocalDateTime) -> Boolean {
+        return { time ->
+            time.isBefore(now.minusMinutes(TIMEFRAME_MINUTES))
         }
-        chain.doFilter(request, response)
+    }
+
+    private fun isBlocked(ipAddress: String): Boolean {
+        return BLOCKED_IPS[ipAddress]?.isAfter(LocalDateTime.now().minusDays(BLOCKED_HOURS)) ?: false
     }
 }
+```
+
+Der Filter funktioniert auch für Clients, welche sich hinter einem Proxy verbergen, da wir den `X-Forwarded-For` Header beim ermitteln der IP-Adresse  beachten.
+
+Dies wurde mit einem Extension Property auf dem ` HttpServletRequest` Objekt gemacht.
+
+```kotlin
+val HttpServletRequest.requestAddress: String
+    get() {
+        val forwardedHeader = getHeader("X-FORWARDED-FOR")
+        if (forwardedHeader.isNullOrEmpty()){
+            return remoteAddr
+        }
+        return forwardedHeader
+    }
 ```
 
 ## Log
@@ -265,12 +329,11 @@ Spring verfügt über vordefinierte Logebenen für verschiedene Applikationsteil
 Im Sourcecode kann mit einfachsten Mitteln in dieses Log geschriben werden.
 
 ```kotlin
-        val LOGGER = LoggerFactory.getLogger(SystemCommandService::class.java)
-        LOGGER.info("Executing system command: $command with parameters: ${argumentArray.joinToString(" ")}")
+val LOGGER = LoggerFactory.getLogger(SystemCommandService::class.java)
+LOGGER.info("Executing system command: $command with parameters: ${argumentArray.joinToString(" ")}")
 ```
 Dieses Codestück generiert einen Log-Eintrag der wie folgt aussehen könnte:
-`2018-06-12 19:34:44.211  INFO 1632 --- [nio-8443-exec-7] m.m.g.m.s.service.SystemCommandService   : Executing system command: java with parameters: -version
-`
+`2018-06-12 19:34:44.211  INFO 1632 --- [nio-8443-exec-7] m.m.g.m.s.service.SystemCommandService   : Executing system command: java with parameters: -version`
 
 Die folgende Konfiguration schreibt die gewünschten Logs an den entsprechenden Pfad:
 

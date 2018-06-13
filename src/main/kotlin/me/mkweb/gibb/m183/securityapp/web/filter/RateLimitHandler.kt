@@ -35,11 +35,11 @@ class RateLimitHandler {
             IP_ACCESS_MAP.remove(ipAddress)
             BLOCKED_IPS[ipAddress] = now
         } else {
-            IP_ACCESS_MAP.compute(ipAddress, { _, attempts ->
+            IP_ACCESS_MAP.compute(ipAddress) { _, attempts ->
                 val attemptsOrEmpty = attempts ?: mutableListOf()
                 attemptsOrEmpty.add(now)
                 attemptsOrEmpty
-            })
+            }
         }
         return hasExceeded
     }
