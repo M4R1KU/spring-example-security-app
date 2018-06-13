@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
 @Component
-class RateLimitHolder {
+class RateLimitHandler {
     companion object {
         const val TIMEFRAME_MINUTES = 5L
         const val REQUESTS_PER_TIMEFRAME = 10
@@ -14,7 +14,7 @@ class RateLimitHolder {
         private val IP_ACCESS_MAP: MutableMap<String, MutableList<LocalDateTime>> = mutableMapOf()
         private val BLOCKED_IPS: MutableMap<String, LocalDateTime> = mutableMapOf()
 
-        private val LOGGER = LoggerFactory.getLogger(RateLimitHolder::class.java)
+        private val LOGGER = LoggerFactory.getLogger(RateLimitHandler::class.java)
     }
 
     fun checkLimitExceeded(ipAddress: String): Boolean {
@@ -45,6 +45,7 @@ class RateLimitHolder {
     }
 
     fun clear(ipAddress: String) {
+        LOGGER.info("Removing IP $ipAddress from access map")
         IP_ACCESS_MAP.remove(ipAddress)
     }
 

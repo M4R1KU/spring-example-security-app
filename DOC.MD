@@ -243,13 +243,13 @@ Der untenstehende Code zeigt unser Vorgehen:
 ```
 
 ```kotlin
-class RateLimitingFilter(val rateLimitHolder: RateLimitHolder) : GenericFilterBean() {
+class RateLimitingFilter(val rateLimitHandler: RateLimitHolder) : GenericFilterBean() {
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         if (request is HttpServletRequest && response is HttpServletResponse) {
             val remoteAddr = request.requestAddress
-            if (rateLimitHolder.checkLimitExceeded(remoteAddr)) {
+            if (rateLimitHandler.checkLimitExceeded(remoteAddr)) {
                 response.sendRedirect("/login?error")
                 return
             }

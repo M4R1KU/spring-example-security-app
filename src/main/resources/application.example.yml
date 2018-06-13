@@ -18,7 +18,10 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
+securityapp:
+  system-command:
+    command-name: # specify command to execute
 
 logging:
   file: /var/log/m183-security-app.log
