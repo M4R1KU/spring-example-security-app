@@ -10,7 +10,7 @@ pipeline {
             steps {
                 script {
                     configFileProvider([
-                        configFile(fileId: '59d1c401-7bc1-4c14-b8f4-7f0f3aadecd0', targetLocation: 'src/main/kotlin/resources/application.yml')
+                        configFile(fileId: '03252855-e233-4f1b-b32b-b27c3df40248', targetLocation: 'src/main/kotlin/resources/application.yml')
                     ]) {}
                 }
             }
@@ -24,7 +24,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh './gradlew clean test'
+                sh './gradlew test'
             }
         }
 
