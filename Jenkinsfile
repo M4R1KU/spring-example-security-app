@@ -7,7 +7,7 @@ pipeline {
     }
 
     stages {
-        /*stage('Prepare') {
+        stage('Prepare') {
             steps {
                 script {
                     configFileProvider([
@@ -15,7 +15,7 @@ pipeline {
                     ]) {}
                 }
             }
-        }*/
+        }
 
         stage('Build') {
             steps {
