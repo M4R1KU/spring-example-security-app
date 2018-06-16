@@ -16,7 +16,7 @@ class SystemCommandService {
         }
     }
 
-    fun executeSecuredCommand(command: String, arguments: String): String {
+    fun executeSecuredCommand(command: String, arguments: String): Array<String> {
         val argumentArray = convertAndValidateParameters(arguments)
         val processBuilder = ProcessBuilder(command, *argumentArray)
 
@@ -24,10 +24,10 @@ class SystemCommandService {
         return try {
             val process = processBuilder.start()
             processBuilder.redirectError(ProcessBuilder.Redirect.to(File("m183-security-app.sys-error.log")))
-            process.inputStream.bufferedReader().use { it.readText() }
+            process.inputStream.bufferedReader().use { it.readLines() }.toTypedArray()
         } catch (ioex: IOException) {
             LOGGER.warn("Failed to execute command {} with arguments {}", command, arguments, ioex)
-            ioex.message ?: ""
+            arrayOf(ioex.message ?: "")
         }
     }
 }

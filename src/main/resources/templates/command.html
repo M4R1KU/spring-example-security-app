@@ -15,13 +15,13 @@
         </div>
         <div class="row">
             <h5 class="three columns" data-th-text="${commandName}"></h5>
-            <input class="six columns" type="text" name="name" id="argument" data-th-value="${arguments}">
+            <input class="six columns" type="text" name="sysopt" id="argument" data-th-value="${arguments}">
             <button class="three columns button-primary" type="submit">Run</button>
         </div>
     </form>
     <div data-th-if="${result}">
         <h5>Result:</h5>
-        <p data-th-text="${result}"></p>
+        <p th:each="resultLine : ${result}" class="commandResult"  data-th-text="${resultLine}"></p>
     </div>
 </section>
 </body>

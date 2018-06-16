@@ -22,9 +22,10 @@ class CommandController(val systemCommandService: SystemCommandService,
     }
 
     @GetMapping("/execute")
-    fun executeCommand(model: Model, @RequestParam("name") arguments: String): Any {
+    fun executeCommand(model: Model, @RequestParam("sysopt") arguments: String): Any {
+        val systemCommandResult = systemCommandService.executeSecuredCommand(systemCommandProperties.commandName, arguments)
         model.addAttribute("arguments", arguments)
-                .addAttribute("result", systemCommandService.executeSecuredCommand(systemCommandProperties.commandName, arguments))
+                .addAttribute("result", systemCommandResult)
         return "command"
     }
 }

@@ -53,3 +53,7 @@ section.content > * {
 .nav-wrapper > :not(.title):not(.filler) + :not(.title):not(.filler) {
     margin-left: 8px;
 }
+
+.commandResult {
+    margin-bottom: 5px;
+}
