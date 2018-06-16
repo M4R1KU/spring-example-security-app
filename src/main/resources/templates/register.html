@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.w3.org/1999/xhtml">
+<html>
 <head data-th-replace="base::head">
 </head>
 <body>
@@ -29,8 +29,8 @@
                 </div>
             </div>
             <div class="row" data-th-if="${message}">
-                <div class="columns button-primary">
-                    <h5>Message:</h5>
+                <div class="columns">
+                    <h6>Message:</h6>
                     <p data-th-text="${message}"></p>
                 </div>
             </div>
