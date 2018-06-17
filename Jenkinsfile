@@ -11,7 +11,7 @@ pipeline {
             steps {
                 script {
                     configFileProvider([
-                        configFile(fileId: '03252855-e233-4f1b-b32b-b27c3df40248', targetLocation: 'src/main/kotlin/resources/application.yml')
+                        configFile(fileId: '03252855-e233-4f1b-b32b-b27c3df40248', targetLocation: 'src/main/resources/application.yml')
                     ]) {}
                 }
             }
