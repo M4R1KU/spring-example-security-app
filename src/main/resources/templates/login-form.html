@@ -26,14 +26,13 @@
                 <input type="submit" value="Login"/>
             </div>
         </div>
-    </form>
-
-    <div class="row" data-th-if="${session.SPRING_SECURITY_LAST_EXCEPTION}">
-        <div class="columns">
-            <h6>Error:</h6>
-            <p data-th-text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}"></p>
+        <div class="row error" data-th-if="${session.SPRING_SECURITY_LAST_EXCEPTION}">
+            <div class="columns">
+                <h6>Error:</h6>
+                <p data-th-text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}"></p>
+            </div>
         </div>
-    </div>
+    </form>
 </section>
 </body>
 </html>

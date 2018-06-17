@@ -21,7 +21,7 @@
     </form>
     <div data-th-if="${result}">
         <h5>Result:</h5>
-        <p th:each="resultLine : ${result}" class="commandResult"  data-th-text="${resultLine}"></p>
+        <p data-th-each="resultLine : ${result}" class="command-result"  data-th-text="${resultLine}"></p>
     </div>
 </section>
 </body>
