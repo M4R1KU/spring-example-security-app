@@ -22,17 +22,20 @@ class SystemCommandService {
         val argumentArray = convertAndValidateParameters(arguments)
         val processBuilder = ProcessBuilder(command, *argumentArray)
 
-        LOGGER.info("Executing system command: $command with parameters: ${argumentArray.joinToString(" ")}")
+        LOGGER.info("Executing system command: {} with arguments: {}", command, arguments)
         return try {
             val process = processBuilder.start()
+
             val errors = process.errorStream.bufferedReader().lines().toList().toTypedArray()
-            val output = process.inputStream.bufferedReader().lines().toList().toTypedArray()
             if (errors.isNotEmpty()) {
+                LOGGER.trace("Command {} with arguments {} has errored: {}", command, arguments, errors)
                 return ViewResultType.ERROR to errors
             }
+            val output = process.inputStream.bufferedReader().lines().toList().toTypedArray()
+            LOGGER.trace("Command {} with arguments {} returned: {}", command, arguments, output)
             ViewResultType.NEUTRAL to output
         } catch (ioex: IOException) {
-            LOGGER.warn("Failed to execute command {} with arguments {}", command, arguments, ioex)
+            LOGGER.error("Failed to execute command $command with arguments $arguments", ioex)
             ViewResultType.ERROR to arrayOf(ioex.message ?: "")
         }
     }

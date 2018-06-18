@@ -19,9 +19,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-securityapp:
+securityapp: # customization of securityapp behaviour, every can property can be ignored if defaults are wanted
   system-command:
-    command-name: # specify command to execute
+    command-name: # specify command to execute (defaults to 'ls')
+  rate-limiting: # customization of rate limiting times (defaults are shown below)
+      blocked-minutes: 60
+      requests-per-time-frame: 10
+      time-frame-minutes: 5
 
 logging:
   file: /var/log/m183-security-app.log
