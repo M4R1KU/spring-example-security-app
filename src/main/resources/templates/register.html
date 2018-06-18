@@ -5,8 +5,9 @@
 <body>
 <nav data-th-replace="base::nav"></nav>
 <section class="content">
-    <div data-th-replace="base::site_header(~{::#title})">
-        <h4 id="title">Create Users</h4>
+    <div data-th-replace="base::site_header(~{::i}, ~{::#title})">
+        <i class="material-icons">person_add</i>
+        <h3 id="title">Create Users</h3>
     </div>
     <div class="row">
         <form class="one-half column" data-th-action="@{/register}" method="post">
@@ -29,14 +30,13 @@
                 </div>
             </div>
             <div class="row" data-th-if="${message}">
-                <div class="columns">
-                    <h6>Message:</h6>
-                    <p data-th-text="${message}"></p>
+                <div class="columns" data-th-classappend="${message.first.clazz}">
+                    <p data-th-text="${message.second}"></p>
                 </div>
             </div>
             <div class="row">
                 <div class="columns">
-                    <input type="submit" value="Register user"/>
+                    <button class="button-primary" type="submit">Register user</button>
                 </div>
             </div>
         </form>

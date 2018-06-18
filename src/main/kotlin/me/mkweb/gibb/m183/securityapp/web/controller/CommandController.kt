@@ -25,7 +25,8 @@ class CommandController(val systemCommandService: SystemCommandService,
     fun executeCommand(model: Model, @RequestParam("sysopt") arguments: String): Any {
         val systemCommandResult = systemCommandService.executeSecuredCommand(systemCommandProperties.commandName, arguments)
         model.addAttribute("arguments", arguments)
-                .addAttribute("result", systemCommandResult)
+                .addAttribute("type", systemCommandResult.first.clazz)
+                .addAttribute("result", systemCommandResult.second)
         return "command"
     }
 }

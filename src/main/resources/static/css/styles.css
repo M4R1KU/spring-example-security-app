@@ -1,10 +1,9 @@
 nav {
-    height: 8rem;
-    line-height: 8rem;
     width: 100%;
     display: flex;
     justify-content: center;
     margin-bottom: 2rem;
+    box-sizing: border-box;
 }
 
 nav a, nav a:active, nav a:hover, nav a:visited {
@@ -13,27 +12,59 @@ nav a, nav a:active, nav a:hover, nav a:visited {
 }
 
 nav .title {
-    font-size: 4rem;
+    font-size: 3.8rem;
 }
 
 nav .nav-wrapper {
     max-width: 960px;
+    padding: 0 2rem;
     flex-grow: 1;
 
     border-bottom: 1px solid lightgray;
 
     display: flex;
+    flex-direction: column;
     align-items: center;
+
 }
 
 .nav-wrapper form, .nav-wrapper a {
     margin: 0;
 }
 
+.nav-wrapper .filler {
+    display: none;
+}
+
+nav .nav-wrapper > * + * {
+    margin-bottom: 0.5rem;
+}
+
+.site-header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.site-header #title {
+    flex-grow: 1;
+}
+
+.site-header > * {
+    margin: 0;
+    line-height: unset;
+}
+
+.site-header > i {
+    font-size: 3.6rem;
+    margin-right: 1rem;
+}
+
 section.content {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 0 2rem;
 }
 
 section.content > * {
@@ -50,14 +81,39 @@ section.content > * {
     align-items: center;
 }
 
-.nav-wrapper > :not(.title):not(.filler) + :not(.title):not(.filler) {
-    margin-left: 8px;
-}
-
 .command-result {
     margin-bottom: 5px;
 }
 
 .error {
     color: red;
+}
+
+.success {
+    color: green;
+}
+
+@media (min-width: 750px) {
+    nav {
+        height: 8rem;
+        line-height: 8rem;
+    }
+
+    nav .nav-wrapper {
+        flex-direction: row;
+    }
+
+    .nav-wrapper .filler {
+        display: block;
+    }
+
+    .nav-wrapper > :not(.title):not(.filler) + :not(.title):not(.filler) {
+        margin-left: 8px;
+    }
+}
+
+@media (min-width: 960px) {
+    .content, nav .nav-wrapper {
+        padding: 0
+    }
 }

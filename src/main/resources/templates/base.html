@@ -14,7 +14,7 @@
 <th-block data-th-fragment="nav">
     <nav>
         <div class="nav-wrapper">
-            <a href="#" class="title">M183 Security App</a>
+            <a href="#" class="title">Security App</a>
             <span class="filler"></span>
             <a data-th-href="@{/register}" class="button" data-th-if="${isLoggedIn}">Create User</a>
             <a data-th-href="@{/command}" class="button" data-th-if="${isLoggedIn}">Systemcommand</a>
@@ -26,8 +26,13 @@
         </div>
     </nav>
 </th-block>
-<div class="site-header" data-th-fragment="site_header(title)">
-    <h4 data-th-replace="${title}"></h4>
+<div class="site-header" data-th-fragment="site_header(icon, title)">
+    <i class="material-icons" data-th-replace="${icon}"></i>
+    <h3 data-th-replace="${title}"></h3>
+    <h4 data-th-if="${isLoggedIn}">
+        <i class="material-icons">person</i>
+        <span data-th-text="${currentUser.username}"></span>
+    </h4>
 </div>
 </body>
 </html>

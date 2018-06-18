@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 class LoginController {
     @GetMapping
     fun login(model: Model): Any {
-        return "login-form"
+        return "login"
     }
 }

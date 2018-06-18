@@ -1,10 +1,12 @@
 package me.mkweb.gibb.m183.securityapp.service
 
+import me.mkweb.gibb.m183.securityapp.util.ViewResultType
 import org.apache.commons.text.StringEscapeUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.File
 import java.io.IOException
+import kotlin.streams.toList
 
 @Service
 class SystemCommandService {
@@ -16,18 +18,22 @@ class SystemCommandService {
         }
     }
 
-    fun executeSecuredCommand(command: String, arguments: String): Array<String> {
+    fun executeSecuredCommand(command: String, arguments: String): Pair<ViewResultType, Array<String>> {
         val argumentArray = convertAndValidateParameters(arguments)
         val processBuilder = ProcessBuilder(command, *argumentArray)
 
         LOGGER.info("Executing system command: $command with parameters: ${argumentArray.joinToString(" ")}")
         return try {
             val process = processBuilder.start()
-            processBuilder.redirectError(ProcessBuilder.Redirect.to(File("m183-security-app.sys-error.log")))
-            process.inputStream.bufferedReader().use { it.readLines() }.toTypedArray()
+            val errors = process.errorStream.bufferedReader().lines().toList().toTypedArray()
+            val output = process.inputStream.bufferedReader().lines().toList().toTypedArray()
+            if (errors.isNotEmpty()) {
+                return ViewResultType.ERROR to errors
+            }
+            ViewResultType.NEUTRAL to output
         } catch (ioex: IOException) {
             LOGGER.warn("Failed to execute command {} with arguments {}", command, arguments, ioex)
-            arrayOf(ioex.message ?: "")
+            ViewResultType.ERROR to arrayOf(ioex.message ?: "")
         }
     }
 }

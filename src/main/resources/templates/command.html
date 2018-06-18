@@ -1,28 +1,33 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.w3.org/1999/xhtml">
+<html>
 <head data-th-replace="base::head">
 </head>
 <body>
 <nav data-th-replace="base::nav"></nav>
 <section class="content">
-    <div data-th-replace="base::site_header(~{::#title})">
+    <div data-th-replace="base::site_header(~{::i}, ~{::#title})">
+        <i class="material-icons">developer_board</i>
         <h3 id="title">Command Execution</h3>
     </div>
     <form data-th-action="@{/command/execute}" method="get">
         <div class="row">
-            <b class="three columns">Command</b>
-            <label class="six columns" for="argument">Arguments</label>
         </div>
         <div class="row">
-            <h5 class="three columns" data-th-text="${commandName}"></h5>
-            <input class="six columns" type="text" name="sysopt" id="argument" data-th-value="${arguments}">
-            <button class="three columns button-primary" type="submit">Run</button>
+            <div class="four columns">
+                <b>Command</b><br>
+                <h5 data-th-text="${commandName}"></h5>
+            </div>
+            <div class="eight columns">
+                <label for="argument">Arguments</label>
+                <input class="u-full-width" type="text" name="sysopt" id="argument" data-th-value="${arguments}">
+            </div>
+        </div>
+        <button class="u-full-width button-primary" type="submit">Run</button>
+        <div data-th-if="${result}" data-th-class="${type}">
+            <h5>Result:</h5>
+            <p data-th-each="resultLine : ${result}" class="command-result" data-th-text="${resultLine}"></p>
         </div>
     </form>
-    <div data-th-if="${result}">
-        <h5>Result:</h5>
-        <p data-th-each="resultLine : ${result}" class="command-result"  data-th-text="${resultLine}"></p>
-    </div>
 </section>
 </body>
 </html>

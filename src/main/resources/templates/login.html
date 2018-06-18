@@ -5,10 +5,15 @@
 <body>
 <nav data-th-replace="base::nav"></nav>
 <section class="content">
-    <div data-th-replace="base::site_header(~{::#title})">
-        <h4 id="title">Login</h4>
+    <div data-th-replace="base::site_header(_, ~{::#title})">
+        <h3 id="title">Login</h3>
     </div>
     <form data-th-action="@{/do-login}" method="post">
+        <div class="row error" data-th-if="${session.SPRING_SECURITY_LAST_EXCEPTION}">
+            <div class="columns">
+                <p data-th-text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}"></p>
+            </div>
+        </div>
         <div class="row">
             <div class="columns">
                 <label for="username">Username</label>
@@ -23,13 +28,7 @@
         </div>
         <div class="row">
             <div class="columns">
-                <input type="submit" value="Login"/>
-            </div>
-        </div>
-        <div class="row error" data-th-if="${session.SPRING_SECURITY_LAST_EXCEPTION}">
-            <div class="columns">
-                <h6>Error:</h6>
-                <p data-th-text="${session.SPRING_SECURITY_LAST_EXCEPTION.message}"></p>
+                <button class="button-primary" type="submit">Login</button>
             </div>
         </div>
     </form>
