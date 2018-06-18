@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head data-th-fragment="head">
+<head data-th-fragment="head(title)">
+    <title data-th-replace="${title}">Security App</title>
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
     <link type="text/css" rel="stylesheet" data-th-href="@{/css/normalize.min.css}"/>
